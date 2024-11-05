@@ -7,7 +7,7 @@ export interface Quote {
 }
 
 class QuoteService {
-  static getRandomQuote(params: { category: string }) {
+  static getRandomQuote(params: { category?: string }) {
     return apiClient.get<Quote[]>("/quotes", { params });
   }
 }

@@ -2,7 +2,6 @@
   <div>
     <h1>Random Quote</h1>
     <h2>Quote Settings</h2>
-    <label for="category">Category:</label>
     <input
       class="input-field"
       type="text"
@@ -18,11 +17,9 @@
 
     <div v-if="quote">
       <h3>Share this quote:</h3>
-      <button class="button" @click="shareOnTelegram">Share on Telegram</button>
       <button class="button" @click="shareOnFacebook">Share on Facebook</button>
     </div>
 
-    <div v-if="errorMessage">{{ errorMessage }}</div>
 
     <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
     <h2>Quote History</h2>
@@ -49,13 +46,16 @@ export default defineComponent({
       errorMessage.value = null;
       try {
         const params = {
-          category: quoteCategory.value,
+          category: quoteCategory.value || undefined,
         };
         const response = await QuoteService.getRandomQuote(params);
-        quote.value = response.data[0];
-
-        if (quote.value) {
+        
+        if (response && response.data.length > 0) {
+          quote.value = response.data[0];
           quoteHistory.value.push(quote.value);
+        }
+        else {
+            errorMessage.value = "No quotes found for the specified category.";
         }
       } catch (error) {
         errorMessage.value =
@@ -70,13 +70,6 @@ export default defineComponent({
         } catch (err) {
           alert("Failed to copy quote.");
         }
-      }
-    };
-
-    const shareOnTelegram = () => {
-      if (quote.value) {
-        const url = `https://t.me/share/url?text="${quote.value.quote}" - ${quote.value.author}`;
-        window.open(url, "_blank");
       }
     };
 
@@ -98,7 +91,6 @@ export default defineComponent({
       quoteHistory,
       copyToClipboard,
       quoteCategory,
-      shareOnTelegram,
       shareOnFacebook,
     };
   },
